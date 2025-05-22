@@ -1,13 +1,24 @@
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/giphy-clone';
+dotenv.config();
 
-export const connectDB = async () => {
+const MONGO_URI = process.env.MONGO_URI || '';
+
+async function run() {
   try {
     await mongoose.connect(MONGO_URI);
-    console.log('MongoDB connected');
+
+    const db = mongoose.connection.db;
+    if (!db) throw new Error('Database connection is not established');
+
+    await db.admin().command({ ping: 1 });
+    console.log('Pinged your deployment. You successfully connected to MongoDB!');
   } catch (error) {
-    console.error('MongoDB connection error:', error);
-    process.exit(1);
+    console.error('Connection error:', error);
+  } finally {
+    await mongoose.disconnect();
   }
-};
+}
+
+run();

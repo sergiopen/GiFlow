@@ -1,21 +1,20 @@
 import { Schema, model } from 'mongoose';
 
-interface IGif {
+export interface IGif {
   url: string;
   title: string;
   likes: number;
   tags: string[];
-  createdAt: Date;
 }
 
-const gifSchema = new Schema<IGif>({
-  url: { type: String, required: true },
-  title: { type: String, required: true },
-  likes: { type: Number, default: 0 },
-  tags: { type: [String], default: [] },
-  createdAt: { type: Date, default: Date.now },
-});
+const gifSchema = new Schema<IGif>(
+  {
+    url: { type: String, required: true },
+    title: { type: String, required: true },
+    likes: { type: Number, default: 0 },
+    tags: { type: [String], default: [] },
+  },
+  { timestamps: true }
+);
 
-const Gif = model<IGif>('Gif', gifSchema);
-
-export default Gif;
+export default model<IGif>('Gif', gifSchema);
