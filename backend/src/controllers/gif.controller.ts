@@ -1,17 +1,18 @@
-import { Request, Response } from 'express';
+import { RequestHandler } from 'express';
 import Gif from '../models/Gif';
 
-export const createGif = async (req: Request, res: Response) => {
+export const createGif: RequestHandler = async (req, res, next) => {
   try {
     const { title, tags } = req.body;
     const file = req.file;
 
     if (!file) {
-      return res.status(400).json({ message: 'No GIF file uploaded' });
+      res.status(400).json({ message: 'No GIF file uploaded' });
+      return;
     }
 
     const newGif = new Gif({
-      url: `${process.env.SERVER_URL}/uploads/${req.file.filename}`,
+      url: `${process.env.SERVER_URL}/uploads/${file.filename}`,
       title,
       tags: Array.isArray(tags) ? tags : [tags].filter(Boolean),
       likes: 0,
@@ -20,15 +21,15 @@ export const createGif = async (req: Request, res: Response) => {
     const savedGif = await newGif.save();
     res.status(201).json(savedGif);
   } catch (error) {
-    res.status(500).json({ message: 'Error creating GIF' });
+    next(error);
   }
 };
 
-export const getGifs = async (req: Request, res: Response) => {
+export const getGifs: RequestHandler = async (req, res, next) => {
   try {
     const gifs = await Gif.find().sort({ createdAt: -1 });
     res.json(gifs);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching GIFs' });
+    next(error);
   }
 };

@@ -1,22 +1,22 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, RequestHandler } from 'express';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
-interface AuthenticatedRequest extends Request {
-  userId?: string;
-}
-
-export const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const authenticateToken: RequestHandler = (req, res, next) => {
   const token = req.cookies?.token;
 
-  if (!token) return res.sendStatus(401);
+  if (!token) {
+    res.sendStatus(401);
+    return;
+  }
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
-    req.userId = decoded.userId;
+    (req as Request & { userId?: string }).userId = decoded.userId;
     next();
   } catch {
-    return res.status(403).json({ message: 'Invalid token' });
+    res.status(403).json({ message: 'Invalid token' });
+    return;
   }
 };

@@ -1,11 +1,11 @@
-import { Request, Response } from 'express';
+import { RequestHandler } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
-export const register = async (req: Request, res: Response) => {
+export const register: RequestHandler = async (req, res) => {
   const { username, email, password } = req.body;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -27,11 +27,12 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login: RequestHandler = async (req, res) => {
   const { identifier, password } = req.body;
 
   if (!identifier || !password) {
-    return res.status(400).json({ message: 'Identifier and password are required' });
+    res.status(400).json({ message: 'Identifier and password are required' });
+    return;
   }
 
   try {
@@ -39,10 +40,16 @@ export const login = async (req: Request, res: Response) => {
       $or: [{ email: identifier }, { username: identifier }],
     });
 
-    if (!user) return res.status(401).json({ message: 'Invalid credentials' });
+    if (!user) {
+      res.status(401).json({ message: 'Invalid credentials' });
+      return;
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
+    if (!isMatch) {
+      res.status(401).json({ message: 'Invalid credentials' });
+      return;
+    }
 
     const token = jwt.sign({ userId: user._id, username: user.username }, JWT_SECRET, { expiresIn: '7d' });
 
@@ -60,9 +67,12 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-export const verify = (req: Request, res: Response) => {
+export const verify: RequestHandler = (req, res) => {
   const token = req.cookies?.token;
-  if (!token) return res.status(401).json({ message: 'Not authenticated' });
+  if (!token) {
+    res.status(401).json({ message: 'Not authenticated' });
+    return;
+  }
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; username: string };
@@ -72,7 +82,7 @@ export const verify = (req: Request, res: Response) => {
   }
 };
 
-export const logout = (req: Request, res: Response) => {
+export const logout: RequestHandler = (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
