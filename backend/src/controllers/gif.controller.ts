@@ -13,7 +13,7 @@ export const createGif = async (req: Request, res: Response) => {
     const newGif = new Gif({
       url: `${process.env.SERVER_URL}/uploads/${req.file.filename}`,
       title,
-      tags: Array.isArray(tags) ? tags : [],
+      tags: Array.isArray(tags) ? tags : [tags].filter(Boolean),
       likes: 0,
     });
 
