@@ -21,7 +21,7 @@ export const register: RequestHandler = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.status(201).json({ message: 'User registered and logged in' });
+    res.status(201).json({ message: 'User registered and logged in', username: user.username });
   } catch {
     res.status(400).json({ message: 'Registration error' });
   }
@@ -61,7 +61,7 @@ export const login: RequestHandler = async (req, res) => {
       path: '/',
     });
 
-    res.json({ message: 'Logged in successfully' });
+    res.json({ message: 'Logged in successfully', username: user.username });
   } catch {
     res.status(500).json({ message: 'Login error' });
   }
