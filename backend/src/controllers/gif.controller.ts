@@ -36,7 +36,7 @@ export const getGifs: RequestHandler = async (req, res, next) => {
 
 export const likeGif: RequestHandler = async (req, res, next) => {
   try {
-    const { gifId } = req.params;
+    const { id } = req.params;
     const userId = req.user?._id;
 
     if (!userId) {
@@ -44,7 +44,7 @@ export const likeGif: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    const gif = await Gif.findById(gifId);
+    const gif = await Gif.findById(id);
     if (!gif) {
       res.status(404).json({ message: 'GIF not found' });
       return;
@@ -62,5 +62,21 @@ export const likeGif: RequestHandler = async (req, res, next) => {
     res.json(gif);
   } catch (error) {
     next(error);
+  }
+};
+
+export const incrementView: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedGif = await Gif.findByIdAndUpdate(id, { $inc: { views: 1 } }, { new: true });
+
+    if (!updatedGif) {
+      res.status(404).json({ message: 'GIF not found' });
+      return;
+    }
+
+    res.json(updatedGif);
+  } catch {
+    res.status(500).json({ message: 'Error incrementing view' });
   }
 };

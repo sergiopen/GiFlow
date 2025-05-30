@@ -6,6 +6,7 @@ export interface IGif {
   likes: number;
   tags: string[];
   likedBy: string[];
+  views: number;
 }
 
 const gifSchema = new Schema<IGif>(
@@ -15,6 +16,7 @@ const gifSchema = new Schema<IGif>(
     likes: { type: Number, default: 0 },
     tags: { type: [String], default: [] },
     likedBy: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
+    views: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

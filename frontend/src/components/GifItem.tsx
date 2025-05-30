@@ -1,5 +1,7 @@
 import LikeButton from './LikeButton';
 import { useAuth } from '../contexts/AuthContext';
+import { useEffect, useRef } from 'react';
+import { incrementView } from '../services/gifService';
 
 interface GifItemProps {
   id: string;
@@ -16,6 +18,34 @@ const GifItem = ({ id, url, title, tags, likes, likedBy }: GifItemProps) => {
   const likedByIds = (likedBy ?? []).map((id) => id.toString().trim().toLowerCase());
   const initiallyLiked = likedByIds.includes(userId);
 
+  const ref = useRef<HTMLDivElement>(null);
+  const hasCountedView = useRef(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasCountedView.current) {
+            incrementView(id);
+            hasCountedView.current = true;
+          }
+        });
+      },
+      {
+        threshold: 0.5,
+      }
+    );
+
+    observer.observe(node);
+
+    return () => {
+      observer.unobserve(node);
+    };
+  }, [id]);
+
   return (
     <a href="#" className="relative inline-block w-80 overflow-hidden rounded-lg shadow-md group">
       <img src={url} alt={title} className="w-full h-80 object-cover block" />
@@ -31,7 +61,9 @@ const GifItem = ({ id, url, title, tags, likes, likedBy }: GifItemProps) => {
               </span>
             ))}
           </div>
-          <LikeButton gifId={id} initialLikes={likes} initiallyLiked={initiallyLiked} userId={userId} isAuthenticated={isAuthenticated} />
+          <div ref={ref} className="text-xs">
+            <LikeButton gifId={id} initialLikes={likes} initiallyLiked={initiallyLiked} userId={userId} isAuthenticated={isAuthenticated} />
+          </div>
         </div>
       </div>
     </a>

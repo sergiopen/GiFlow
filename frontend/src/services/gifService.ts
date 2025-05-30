@@ -27,3 +27,8 @@ export const likeGif = async (gifId: string) => {
   );
   return res.data;
 };
+
+export const incrementView = async (gifId: string) => {
+  const res = await axios.patch(`${API_URL}/api/gifs/${gifId}/view`, {}, { withCredentials: true });
+  return res.data;
+};
