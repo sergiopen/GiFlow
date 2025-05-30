@@ -1,5 +1,6 @@
 import { RequestHandler } from 'express';
 import Gif from '../models/Gif';
+import type { Request, Response } from 'express';
 
 export const createGif: RequestHandler = async (req, res, next) => {
   try {
@@ -25,12 +26,38 @@ export const createGif: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const getGifs: RequestHandler = async (req, res, next) => {
+export const getGifs = async (req: Request, res: Response) => {
   try {
-    const gifs = await Gif.find().sort({ createdAt: -1 });
-    res.json(gifs);
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit as string) || 20, 1);
+    const sort = (req.query.sort as string) || 'recent';
+
+    let gifs;
+    let total = await Gif.countDocuments();
+
+    switch (sort) {
+      case 'random':
+        gifs = await Gif.aggregate([{ $sample: { size: limit } }]);
+        break;
+      case 'popular':
+        gifs = await Gif.find()
+          .sort({ views: -1 })
+          .skip((page - 1) * limit)
+          .limit(limit);
+        break;
+      case 'recent':
+      default:
+        gifs = await Gif.find()
+          .sort({ createdAt: -1 })
+          .skip((page - 1) * limit)
+          .limit(limit);
+        break;
+    }
+
+    res.json({ gifs, total, limit });
   } catch (error) {
-    next(error);
+    console.error('Error fetching gifs:', error);
+    res.status(500).json({ message: 'Error fetching gifs' });
   }
 };
 

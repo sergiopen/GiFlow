@@ -2,8 +2,18 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
-export const getGifs = async () => {
-  const res = await axios.get(`${API_URL}/api/gifs`);
+interface GetGifsParams {
+  page?: number;
+  limit?: number;
+  sort?: string;
+}
+
+export const getGifs = async ({ page, limit, sort }: GetGifsParams = {}) => {
+  const params = new URLSearchParams();
+  if (page !== undefined) params.append('page', page.toString());
+  if (limit !== undefined) params.append('limit', limit.toString());
+
+  const res = await axios.get(`${API_URL}/api/gifs?${params.toString()}${sort ? `&sort=${sort}` : ''}`);
   return res.data;
 };
 
