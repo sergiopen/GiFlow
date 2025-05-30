@@ -33,3 +33,34 @@ export const getGifs: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
+
+export const likeGif: RequestHandler = async (req, res, next) => {
+  try {
+    const { gifId } = req.params;
+    const userId = req.user?._id;
+
+    if (!userId) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+
+    const gif = await Gif.findById(gifId);
+    if (!gif) {
+      res.status(404).json({ message: 'GIF not found' });
+      return;
+    }
+
+    if (gif.likedBy.includes(userId)) {
+      gif.likes--;
+      gif.likedBy = gif.likedBy.filter((id) => id.toString() !== userId);
+    } else {
+      gif.likes++;
+      gif.likedBy.push(userId);
+    }
+
+    await gif.save();
+    res.json(gif);
+  } catch (error) {
+    next(error);
+  }
+};

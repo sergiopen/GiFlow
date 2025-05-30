@@ -2,10 +2,10 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Header = () => {
-  const { isAuthenticated, username, logout } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
 
   return (
-    <header className="w-full px-6 py-4 text-white flex justify-between items-center">
+    <header className="w-full sticky top-0 z-50 px-6 py-4 text-white bg-zinc-900 flex justify-between items-center">
       <Link to="/" className="text-xl font-bold">
         GifApp
       </Link>
@@ -14,7 +14,7 @@ const Header = () => {
         {isAuthenticated ? (
           <>
             <Link to="/">
-              <p className="hover:underline">{username}</p>
+              <p className="hover:underline">{user?.username}</p>
             </Link>
             <button onClick={logout} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
               Cerrar sesión

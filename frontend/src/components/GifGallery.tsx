@@ -8,6 +8,7 @@ interface Gif {
   title: string;
   likes: number;
   tags: string[];
+  likedBy: string[];
 }
 
 const GifGallery = () => {
@@ -23,7 +24,7 @@ const GifGallery = () => {
     <div className="mx-auto p-6">
       <div className="flex flex-wrap justify-center gap-6">
         {gifs.map((gif) => (
-          <GifItem key={gif._id} url={gif.url} title={gif.title} tags={gif.tags} likes={gif.likes} />
+          <GifItem key={gif._id} id={gif._id} url={gif.url} title={gif.title} tags={gif.tags} likes={gif.likes} likedBy={gif.likedBy} />
         ))}
       </div>
     </div>

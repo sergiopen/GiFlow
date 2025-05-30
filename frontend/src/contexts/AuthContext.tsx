@@ -2,9 +2,15 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { registerUser, loginUser, verifyUser, logoutUser } from '../services/authService';
 
+interface User {
+  userId: string;
+  username: string;
+  email: string;
+}
+
 interface AuthContextType {
   isAuthenticated: boolean;
-  username: string | null;
+  user: User | null;
   loading: boolean;
   login: (identifier: string, password: string) => Promise<void>;
   register: (formData: { username: string; email: string; password: string }) => Promise<void>;
@@ -21,17 +27,17 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [username, setUsername] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const verifyAuth = async () => {
       try {
         const data = await verifyUser();
-        setUsername(data.username);
+        setUser(data);
         setIsAuthenticated(true);
       } catch {
-        setUsername(null);
+        setUser(null);
         setIsAuthenticated(false);
       } finally {
         setLoading(false);
@@ -44,11 +50,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       const data = await loginUser(identifier, password);
-      setUsername(data.username);
+      setUser(data);
       setIsAuthenticated(true);
     } catch (err) {
       setIsAuthenticated(false);
-      setUsername(null);
+      setUser(null);
       throw err;
     } finally {
       setLoading(false);
@@ -59,11 +65,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       const data = await registerUser(formData);
-      setUsername(data.username);
+      setUser(data);
       setIsAuthenticated(true);
     } catch (err) {
       setIsAuthenticated(false);
-      setUsername(null);
+      setUser(null);
       throw err;
     } finally {
       setLoading(false);
@@ -73,8 +79,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     logoutUser().catch((err) => console.error('Logout failed:', err));
     setIsAuthenticated(false);
-    setUsername(null);
+    setUser(null);
   };
 
-  return <AuthContext.Provider value={{ isAuthenticated, username, loading, login, register, logout }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ isAuthenticated, user, loading, login, register, logout }}>{children}</AuthContext.Provider>;
 };

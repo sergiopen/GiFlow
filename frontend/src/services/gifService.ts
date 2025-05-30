@@ -16,3 +16,14 @@ export const uploadGif = async (formData: FormData) => {
   });
   return res.data;
 };
+
+export const likeGif = async (gifId: string) => {
+  const res = await axios.post(
+    `${API_URL}/api/gifs/${gifId}/like`,
+    {},
+    {
+      withCredentials: true,
+    }
+  );
+  return res.data;
+};
