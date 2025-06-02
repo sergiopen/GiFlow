@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { getGifs } from '../services/gifService';
 import GifItem from './GifItem';
 
@@ -20,35 +20,30 @@ const GifGallery = () => {
   const observer = useRef<IntersectionObserver | null>(null);
   const lastGifRef = useRef<HTMLDivElement | null>(null);
 
-  const loadGifs = useCallback(
-    async (pageToLoad: number) => {
-      if (loading || !hasMore) return;
+  const loadGifs = useCallback(async (pageToLoad: number) => {
+    setLoading(true);
+    try {
+      const { gifs: newGifs, total, limit } = await getGifs({ page: pageToLoad, limit: 10, sort: 'popular' });
 
-      setLoading(true);
-      try {
-        const { gifs: newGifs, total, limit } = await getGifs({ page: pageToLoad, limit: 10, sort: 'popular' });
+      setGifs((prev) => {
+        const ids = new Set(prev.map((gif) => gif._id));
+        const filteredNew = newGifs.filter((gif: Gif) => !ids.has(gif._id));
+        return [...prev, ...filteredNew];
+      });
 
-        setGifs((prev) => {
-          const ids = new Set(prev.map((gif) => gif._id));
-          const filteredNew = newGifs.filter((gif: Gif) => !ids.has(gif._id));
-          return [...prev, ...filteredNew];
-        });
-
-        const totalPages = Math.ceil(total / limit);
-        setHasMore(pageToLoad < totalPages);
-        setPage(pageToLoad + 1);
-      } catch {
-        setHasMore(false);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [loading, hasMore]
-  );
+      const totalPages = Math.ceil(total / limit);
+      setHasMore(pageToLoad < totalPages);
+    } catch {
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
+    if (!hasMore) return;
     loadGifs(page);
-  }, [loadGifs, page]);
+  }, [page, loadGifs, hasMore]);
 
   useEffect(() => {
     if (loading) return;
@@ -57,8 +52,8 @@ const GifGallery = () => {
 
     observer.current = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          loadGifs(page);
+        if (entries[0].isIntersecting && hasMore && !loading) {
+          setPage((prev) => prev + 1);
         }
       },
       { rootMargin: '200px' }
@@ -71,21 +66,18 @@ const GifGallery = () => {
     return () => {
       if (observer.current) observer.current.disconnect();
     };
-  }, [loadGifs, hasMore, loading, page]);
+  }, [hasMore, loading]);
 
   return (
     <div className="mx-auto p-6">
       <div className="flex flex-wrap justify-center gap-6">
         {gifs.map((gif, i) => {
-          if (i === gifs.length - 1) {
-            return (
-              <div ref={lastGifRef} key={gif._id}>
-                <GifItem id={gif._id} url={gif.url} title={gif.title} tags={gif.tags} likes={gif.likes} likedBy={gif.likedBy} />
-              </div>
-            );
-          } else {
-            return <GifItem key={gif._id} id={gif._id} url={gif.url} title={gif.title} tags={gif.tags} likes={gif.likes} likedBy={gif.likedBy} />;
-          }
+          const isLast = i === gifs.length - 1;
+          return (
+            <div key={gif._id} ref={isLast ? lastGifRef : null}>
+              <GifItem id={gif._id} url={gif.url} title={gif.title} tags={gif.tags} likes={gif.likes} likedBy={gif.likedBy} />
+            </div>
+          );
         })}
       </div>
       {loading && <p className="text-center mt-4">Loading more GIFs...</p>}
