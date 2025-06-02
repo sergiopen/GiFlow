@@ -1,5 +1,6 @@
 import { RequestHandler } from 'express';
 import Gif from '../models/Gif';
+import mongoose from 'mongoose';
 import type { Request, Response } from 'express';
 
 export const createGif: RequestHandler = async (req, res, next) => {
@@ -16,6 +17,9 @@ export const createGif: RequestHandler = async (req, res, next) => {
       url: `${process.env.SERVER_URL}/uploads/${file.filename}`,
       title,
       tags: Array.isArray(tags) ? tags : [tags].filter(Boolean),
+      uploadedBy: req.user?._id,
+      likedBy: [],
+      views: 0,
       likes: 0,
     });
 
@@ -33,24 +37,44 @@ export const getGifs = async (req: Request, res: Response) => {
     const sort = (req.query.sort as string) || 'recent';
 
     let gifs;
-    let total = await Gif.countDocuments();
+    const total = await Gif.countDocuments();
 
     switch (sort) {
       case 'random':
-        gifs = await Gif.aggregate([{ $sample: { size: limit } }]);
+        gifs = await Gif.aggregate([
+          { $sample: { size: limit } },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'uploadedBy',
+              foreignField: '_id',
+              as: 'uploadedBy',
+            },
+          },
+          {
+            $unwind: {
+              path: '$uploadedBy',
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+        ]);
         break;
+
       case 'popular':
         gifs = await Gif.find()
           .sort({ views: -1 })
           .skip((page - 1) * limit)
-          .limit(limit);
+          .limit(limit)
+          .populate('uploadedBy', 'username avatar');
         break;
+
       case 'recent':
       default:
         gifs = await Gif.find()
           .sort({ createdAt: -1 })
           .skip((page - 1) * limit)
-          .limit(limit);
+          .limit(limit)
+          .populate('uploadedBy', 'username avatar');
         break;
     }
 
@@ -77,12 +101,14 @@ export const likeGif: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    if (gif.likedBy.includes(userId)) {
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    if (gif.likedBy.some((id) => id.equals(userObjectId))) {
       gif.likes--;
-      gif.likedBy = gif.likedBy.filter((id) => id.toString() !== userId);
+      gif.likedBy = gif.likedBy.filter((id) => !id.equals(userObjectId));
     } else {
       gif.likes++;
-      gif.likedBy.push(userId);
+      gif.likedBy.push(userObjectId);
     }
 
     await gif.save();

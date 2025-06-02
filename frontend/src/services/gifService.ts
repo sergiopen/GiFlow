@@ -13,7 +13,7 @@ export const getGifs = async ({ page, limit, sort }: GetGifsParams = {}) => {
   if (page !== undefined) params.append('page', page.toString());
   if (limit !== undefined) params.append('limit', limit.toString());
 
-  const res = await axios.get(`${API_URL}/api/gifs?${params.toString()}${sort ? `&sort=${sort}` : ''}`);
+  const res = await axios.get(`${API_URL}/api/gifs?${params.toString()}${sort ? `&sort=${sort}` : ''}`, { withCredentials: true });
   return res.data;
 };
 

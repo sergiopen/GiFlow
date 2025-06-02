@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { getGifs } from '../services/gifService';
 import GifItem from './GifItem';
+import SpinnerLoading from './SpinnerLoading';
 
 interface Gif {
   _id: string;
@@ -9,6 +10,11 @@ interface Gif {
   likes: number;
   tags: string[];
   likedBy: string[];
+  uploadedBy: {
+    userId: string;
+    username: string;
+    avatar?: string;
+  } | null;
 }
 
 const GifGallery = () => {
@@ -69,18 +75,27 @@ const GifGallery = () => {
   }, [hasMore, loading]);
 
   return (
-    <div className="mx-auto p-6">
-      <div className="flex flex-wrap justify-center gap-6">
+    <div className="mx-auto max-w-[1280px] p-6">
+      <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-6">
         {gifs.map((gif, i) => {
           const isLast = i === gifs.length - 1;
           return (
-            <div key={gif._id} ref={isLast ? lastGifRef : null}>
-              <GifItem id={gif._id} url={gif.url} title={gif.title} tags={gif.tags} likes={gif.likes} likedBy={gif.likedBy} />
+            <div key={gif._id} ref={isLast ? lastGifRef : null} className="break-inside-avoid mb-6">
+              <GifItem
+                id={gif._id}
+                url={gif.url}
+                title={gif.title}
+                tags={gif.tags}
+                likes={gif.likes}
+                likedBy={gif.likedBy}
+                uploadedBy={gif.uploadedBy}
+              />
             </div>
           );
         })}
       </div>
-      {loading && <p className="text-center mt-4">Loading more GIFs...</p>}
+
+      {loading && <SpinnerLoading />}
     </div>
   );
 };

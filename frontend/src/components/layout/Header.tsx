@@ -13,10 +13,17 @@ const Header = () => {
       <nav className="flex items-center gap-4">
         {isAuthenticated ? (
           <>
-            <Link to="/">
-              <p className="hover:underline">{user?.username}</p>
+            <Link to={`/profile/${user?.username}`}>
+              <div className="flex items-center gap-2 hover:underline">
+                <img
+                  src={user?.avatar || '/default-avatar.gif'}
+                  alt={`${user?.username} foto de perfil`}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+                <p className="hover:underline">{user?.username}</p>
+              </div>
             </Link>
-            <button onClick={logout} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
+            <button onClick={logout} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded cursor-pointer">
               Cerrar sesión
             </button>
           </>

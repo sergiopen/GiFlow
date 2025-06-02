@@ -7,7 +7,7 @@ export const authenticateToken: RequestHandler = (req, res, next) => {
   const token = req.cookies?.token;
 
   if (!token) {
-    res.sendStatus(401);
+    res.status(401).json({ message: 'No token provided' });
     return;
   }
 
