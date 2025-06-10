@@ -5,7 +5,7 @@ const Header = () => {
   const { isAuthenticated, user, logout } = useAuth();
 
   return (
-    <header className="w-full sticky top-0 z-50 px-6 py-4 text-white bg-zinc-900 flex justify-between items-center">
+    <header className="w-full sticky top-0 z-50 mb-4 px-6 py-4 text-white bg-zinc-900 flex justify-between items-center">
       <Link to="/" className="text-xl font-bold">
         GifApp
       </Link>

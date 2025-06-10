@@ -42,3 +42,8 @@ export const incrementView = async (gifId: string) => {
   const res = await axios.patch(`${API_URL}/api/gifs/${gifId}/view`, {}, { withCredentials: true });
   return res.data;
 };
+
+export const getGifsByTag = async (tag: string, page = 1, limit = 10) => {
+  const response = await axios.get(`${API_URL}/api/gifs?tag=${encodeURIComponent(tag)}&page=${page}&limit=${limit}`);
+  return response.data;
+};

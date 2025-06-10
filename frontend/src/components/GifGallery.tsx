@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { getGifs } from '../services/gifService';
+import { getGifs, getGifsByTag } from '../services/gifService';
 import GifItem from './GifItem';
 import SpinnerLoading from './SpinnerLoading';
 
@@ -17,8 +17,13 @@ interface Gif {
   } | null;
 }
 
-const GifGallery = () => {
-  const [gifs, setGifs] = useState<Gif[]>([]);
+interface GifGalleryProps {
+  gifs?: Gif[];
+  tag?: string;
+}
+
+const GifGallery = ({ gifs: initialGifs, tag }: GifGalleryProps) => {
+  const [gifs, setGifs] = useState<Gif[]>(initialGifs ?? []);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -26,32 +31,62 @@ const GifGallery = () => {
   const observer = useRef<IntersectionObserver | null>(null);
   const lastGifRef = useRef<HTMLDivElement | null>(null);
 
-  const loadGifs = useCallback(async (pageToLoad: number) => {
-    setLoading(true);
-    try {
-      const { gifs: newGifs, total, limit } = await getGifs({ page: pageToLoad, limit: 10, sort: 'popular' });
+  const loadGifs = useCallback(
+    async (pageToLoad: number) => {
+      setLoading(true);
+      try {
+        let data;
+        if (tag) {
+          data = await getGifsByTag(tag, pageToLoad, 10);
+        } else {
+          data = await getGifs({ page: pageToLoad, limit: 10, sort: 'popular' });
+        }
 
-      setGifs((prev) => {
-        const ids = new Set(prev.map((gif) => gif._id));
-        const filteredNew = newGifs.filter((gif: Gif) => !ids.has(gif._id));
-        return [...prev, ...filteredNew];
-      });
+        const newGifs = data.gifs as Gif[];
+        const total = data.total as number;
+        const limit = data.limit as number;
 
-      const totalPages = Math.ceil(total / limit);
-      setHasMore(pageToLoad < totalPages);
-    } catch {
+        setGifs((prev) => {
+          const ids = new Set(prev.map((g) => g._id));
+          const filteredNew = newGifs.filter((g) => !ids.has(g._id));
+          return [...prev, ...filteredNew];
+        });
+
+        const totalPages = Math.ceil(total / limit);
+        setHasMore(pageToLoad < totalPages);
+      } catch {
+        setHasMore(false);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [tag]
+  );
+
+  useEffect(() => {
+    if (initialGifs) {
+      setGifs(initialGifs);
+      setPage(1);
       setHasMore(false);
-    } finally {
       setLoading(false);
+      return;
     }
-  }, []);
+
+    setGifs([]);
+    setPage(1);
+    setHasMore(true);
+    setLoading(false);
+  }, [initialGifs, tag]);
 
   useEffect(() => {
+    if (initialGifs) return;
     if (!hasMore) return;
+
     loadGifs(page);
-  }, [page, loadGifs, hasMore]);
+  }, [page, loadGifs, hasMore, initialGifs]);
 
   useEffect(() => {
+    if (initialGifs) return;
     if (loading) return;
 
     if (observer.current) observer.current.disconnect();
@@ -65,14 +100,12 @@ const GifGallery = () => {
       { rootMargin: '200px' }
     );
 
-    if (lastGifRef.current) {
-      observer.current.observe(lastGifRef.current);
-    }
+    if (lastGifRef.current) observer.current.observe(lastGifRef.current);
 
     return () => {
       if (observer.current) observer.current.disconnect();
     };
-  }, [hasMore, loading]);
+  }, [hasMore, loading, initialGifs]);
 
   return (
     <div className="mx-auto max-w-[1280px] p-6">
@@ -80,7 +113,7 @@ const GifGallery = () => {
         {gifs.map((gif, i) => {
           const isLast = i === gifs.length - 1;
           return (
-            <div key={gif._id} ref={isLast ? lastGifRef : null} className="break-inside-avoid mb-6">
+            <div key={gif._id} ref={!initialGifs && isLast ? lastGifRef : null} className="break-inside-avoid mb-6">
               <GifItem
                 id={gif._id}
                 url={gif.url}
@@ -95,7 +128,7 @@ const GifGallery = () => {
         })}
       </div>
 
-      {loading && <SpinnerLoading />}
+      {!initialGifs && loading && <SpinnerLoading />}
     </div>
   );
 };

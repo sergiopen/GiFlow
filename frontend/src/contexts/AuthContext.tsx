@@ -53,6 +53,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const data = await loginUser(identifier, password);
       setUser(data);
       setIsAuthenticated(true);
+      window.location.reload();
     } catch (err) {
       setIsAuthenticated(false);
       setUser(null);

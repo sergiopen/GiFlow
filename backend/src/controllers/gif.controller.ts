@@ -7,6 +7,7 @@ export const createGif: RequestHandler = async (req, res, next) => {
   try {
     const { title, tags } = req.body;
     const file = req.file;
+    const BACK_URL = process.env.BACK_URL || 'http://localhost:4000';
 
     if (!file) {
       res.status(400).json({ message: 'No GIF file uploaded' });
@@ -14,7 +15,7 @@ export const createGif: RequestHandler = async (req, res, next) => {
     }
 
     const newGif = new Gif({
-      url: `${process.env.SERVER_URL}/uploads/${file.filename}`,
+      url: `${BACK_URL}/uploads/${file.filename}`,
       title,
       tags: Array.isArray(tags) ? tags : [tags].filter(Boolean),
       uploadedBy: req.user?._id,
@@ -35,13 +36,16 @@ export const getGifs = async (req: Request, res: Response) => {
     const page = Math.max(parseInt(req.query.page as string) || 1, 1);
     const limit = Math.max(parseInt(req.query.limit as string) || 20, 1);
     const sort = (req.query.sort as string) || 'recent';
+    const tag = req.query.tag as string;
 
+    const tagFilter = tag ? { tags: tag } : {};
     let gifs;
-    const total = await Gif.countDocuments();
+    const total = await Gif.countDocuments(tagFilter);
 
     switch (sort) {
       case 'random':
         gifs = await Gif.aggregate([
+          { $match: tagFilter },
           { $sample: { size: limit } },
           {
             $lookup: {
@@ -61,7 +65,7 @@ export const getGifs = async (req: Request, res: Response) => {
         break;
 
       case 'popular':
-        gifs = await Gif.find()
+        gifs = await Gif.find(tagFilter)
           .sort({ views: -1 })
           .skip((page - 1) * limit)
           .limit(limit)
@@ -70,7 +74,7 @@ export const getGifs = async (req: Request, res: Response) => {
 
       case 'recent':
       default:
-        gifs = await Gif.find()
+        gifs = await Gif.find(tagFilter)
           .sort({ createdAt: -1 })
           .skip((page - 1) * limit)
           .limit(limit)
