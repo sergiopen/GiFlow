@@ -17,6 +17,11 @@ export const getGifs = async ({ page, limit, sort }: GetGifsParams = {}) => {
   return res.data;
 };
 
+export const getGifById = async (gifId: string) => {
+  const res = await axios.get(`${API_URL}/api/gifs/${gifId}`, { withCredentials: true });
+  return res.data;
+};
+
 export const uploadGif = async (formData: FormData) => {
   const res = await axios.post(`${API_URL}/api/gifs`, formData, {
     headers: {

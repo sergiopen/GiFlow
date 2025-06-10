@@ -89,6 +89,20 @@ export const getGifs = async (req: Request, res: Response) => {
   }
 };
 
+export const getGifById: RequestHandler = async (req, res, next) => {
+  try {
+    const gif = await Gif.findById(req.params.id).populate('uploadedBy', 'username avatar');
+
+    if (!gif) {
+      res.status(404).json({ message: 'GIF not found' });
+      return;
+    }
+    res.json(gif);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 export const likeGif: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;

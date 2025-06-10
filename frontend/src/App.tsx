@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import { TagPage } from './pages/TagPage';
+import { GifPage } from './pages/GifPage';
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
       <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/gif/:id" element={<GifPage />} />
           <Route path="/tag/:tag" element={<TagPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
