@@ -1,7 +1,7 @@
-import GifGallery from '../components/GifGallery';
-import Header from '../components/layout/Header';
+import { GifGallery } from '../components/GifGallery';
+import { Header } from '../components/layout/Header';
 
-const HomePage = () => {
+export const HomePage = () => {
   return (
     <>
       <Header />
@@ -9,5 +9,3 @@ const HomePage = () => {
     </>
   );
 };
-
-export default HomePage;

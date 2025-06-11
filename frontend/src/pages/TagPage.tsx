@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
-import GifGallery from '../components/GifGallery';
+import { GifGallery } from '../components/GifGallery';
 import { Link } from 'react-router-dom';
-import Header from '../components/layout/Header';
+import { Header } from '../components/layout/Header';
 
 export const TagPage = () => {
   const { tag } = useParams();

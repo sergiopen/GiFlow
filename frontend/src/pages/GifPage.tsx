@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getGifById } from '../services/gifService';
-import LikeButton from '../components/LikeButton';
+import { getGifById, incrementView } from '../services/gifService';
+import { LikeButton } from '../components/LikeButton';
 import { useAuth } from '../contexts/AuthContext';
-import Header from '../components/layout/Header';
+import { Header } from '../components/layout/Header';
+import { ShareSection } from '../components/ShareSection';
+import { GifGallery } from '../components/GifGallery';
+import { GifPageSkeleton } from '../components/skeletons/GifPageSkeleton';
 
 type Gif = {
   _id: string;
@@ -16,10 +19,12 @@ type Gif = {
     _id: string;
     username: string;
     avatar: string;
+    bio: string;
+    name: string;
   };
   createdAt: string;
   likedByUser: boolean;
-  uploadedAt?: string; // si tienes fecha subida, opcional
+  uploadedAt?: string;
 };
 
 export const GifPage = () => {
@@ -29,6 +34,8 @@ export const GifPage = () => {
   const { user, isAuthenticated } = useAuth();
   const [sizeKB, setSizeKB] = useState<number | null>(null);
   const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null);
+
+  const embedCode = `<iframe src="http://localhost:5173/embed/gif/${id}" width="480" height="360" frameBorder="0" allowFullScreen title="GIF Embed"></iframe>`;
 
   useEffect(() => {
     const fetchGif = async () => {
@@ -70,19 +77,17 @@ export const GifPage = () => {
     fetchGifData();
   }, [gif]);
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: gif?.title,
-        url: window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      alert('Enlace copiado al portapapeles');
-    }
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    incrementView(id as string);
+  }, [id])
+
+  const copyText = (text: string) => {
+    navigator.clipboard.writeText(text);
   };
 
-  if (loading) return <div className="text-center mt-8">Cargando...</div>;
+  if (loading) return <GifPageSkeleton />
+
   if (!gif) return <div className="text-center mt-8 text-red-500">GIF no encontrado</div>;
 
   return (
@@ -96,21 +101,22 @@ export const GifPage = () => {
           <div className="w-full md:w-[200px] flex flex-col gap-4">
             {gif.uploadedBy && (
               <div className="p-3 rounded-lg bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800 text-gray-300 shadow-md">
-                <Link className="flex gap-2 items-center group" to={`/profile/${gif.uploadedBy.username}`} onClick={(e) => e.stopPropagation()}>
+                <Link
+                  className="gap-2 items-center group inline-flex"
+                  to={`/profile/${gif.uploadedBy.username}`}
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <img
                     src={gif.uploadedBy.avatar || '/default-avatar.gif'}
                     alt={`Foto de perfil de ${gif.uploadedBy.username}`}
                     className="w-12 h-12 rounded-full object-cover"
                   />
                   <div className="flex flex-col">
-                    <span className="text-gray-400 text-m">Sergio</span>
+                    <span className="text-gray-400 text-m">{gif.uploadedBy.name}</span>
                     <span className="font-semibold group-hover:underline cursor-pointer">@{gif.uploadedBy.username}</span>
                   </div>
                 </Link>
-                <p className="mt-2 text-sm text-gray-400">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus maiores dolorem alias, quo libero iure eos repellendus eveniet cum!
-                  Soluta expedita nihil voluptatem beatae ut pariatur eius excepturi iste neque.
-                </p>
+                {gif.uploadedBy.bio && <p className="mt-2 text-sm text-gray-400">{gif.uploadedBy.bio}</p>}
               </div>
             )}
 
@@ -121,13 +127,13 @@ export const GifPage = () => {
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col gap-4 items-center">
+          <div className="flex-1 flex flex-col gap-4 m-auto items-center">
             <div
-              className="relative w-full rounded-2xl overflow-hidden shadow bg-white
+              className="w-full rounded-2xl overflow-hidden shadow bg-white
                 hover:bg-[linear-gradient(45deg,#ccc_25%,transparent_25%,transparent_75%,#ccc_75%),linear-gradient(45deg,#ccc_25%,white_25%,white_75%,#ccc_75%)]
                 hover:bg-[length:40px_40px] transition-colors duration-300 ease-in-out"
             >
-              <img src={gif.url} alt={gif.title} className="relative w-full h-auto z-10 rounded-2xl" />
+              <img src={gif.url} alt={gif.title} className="w-full h-auto rounded-2xl" />
             </div>
 
             <div className="flex flex-wrap gap-2">
@@ -136,25 +142,6 @@ export const GifPage = () => {
                   #{tag}
                 </Link>
               ))}
-            </div>
-
-            <div className="m-4 text-lg w-full pt-4 text-gray-200 rounded-lg p-4 bg-gradient-to-r from-purple-900 via-purple-700 to-pink-700">
-              <h2 className="font-semibold mb-2 text-white">Detalles</h2>
-              {sizeKB !== null && (
-                <p>
-                  <strong>Tamaño:</strong> {sizeKB} KB
-                </p>
-              )}
-              {dimensions && (
-                <p>
-                  <strong>Dimensiones:</strong> {dimensions.width} x {dimensions.height} px
-                </p>
-              )}
-              {gif.createdAt && (
-                <p>
-                  <strong>Fecha de subida:</strong> {new Date(gif.createdAt).toLocaleDateString()}
-                </p>
-              )}
             </div>
           </div>
 
@@ -166,18 +153,55 @@ export const GifPage = () => {
               userId={user?.userId || ''}
               isAuthenticated={isAuthenticated}
             />
-            <button
-              onClick={handleShare}
-              className="p-2 cursor-pointer transition-transform duration-200 hover:scale-110 flex"
-              aria-label="Compartir GIF"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-white transition-colors" viewBox="0 0 16 16" fill="currentColor">
-                <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z" />
-                <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z" />
-              </svg>
-              <p className="text-lg">Copiar enlace</p>
-            </button>
+            <ShareSection />
           </div>
+        </div>
+
+        <div className="m-4 text-center max-w-lg mx-auto px-4">
+          <h2 className="text-2xl font-semibold mb-4">Compartir</h2>
+
+          <b>Compartir enlace</b>
+          <input
+            type="text"
+            value={window.location.href}
+            readOnly
+            onClick={() => copyText(window.location.href)}
+            className="w-full mb-4 p-2 border border-gray-300 rounded cursor-pointer text-blue-700 hover:bg-blue-100 transition"
+            id="text-share"
+          />
+
+          <b>Insertar en tu sitio web</b>
+          <input
+            type="text"
+            value={embedCode}
+            readOnly
+            onClick={() => copyText(embedCode)}
+            className="w-full p-2 border border-gray-300 rounded cursor-pointer text-blue-700 hover:bg-blue-100 transition"
+            id="text-share2"
+          />
+        </div>
+
+        <div className="w-full max-w-xs sm:max-w-md lg:w-lg m-auto mt-4 text-lg text-gray-200 rounded-lg p-4 bg-gradient-to-r from-purple-900 via-purple-700 to-pink-700">
+          <h2 className="font-semibold mb-2 text-white">Detalles</h2>
+          {sizeKB !== null && (
+            <p>
+              <strong>Tamaño:</strong> {sizeKB} KB
+            </p>
+          )}
+          {dimensions && (
+            <p>
+              <strong>Dimensiones:</strong> {dimensions.width} x {dimensions.height} px
+            </p>
+          )}
+          {gif.createdAt && (
+            <p>
+              <strong>Fecha de subida:</strong> {new Date(gif.createdAt).toLocaleDateString()}
+            </p>
+          )}
+        </div>
+        <div className="mt-8">
+          <h2 className="text-2xl font-semibold ml-6">GIFs relacionados</h2>
+          <GifGallery tag={gif.tags[0]} />
         </div>
       </div>
     </div>

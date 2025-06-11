@@ -1,4 +1,4 @@
-const SpinnerLoading = () => (
+export const SpinnerLoading = () => (
   <div className="flex justify-center items-center space-x-1">
     {[...Array(5)].map((_, i) => (
       <span
@@ -22,5 +22,3 @@ const SpinnerLoading = () => (
     `}</style>
   </div>
 );
-
-export default SpinnerLoading;

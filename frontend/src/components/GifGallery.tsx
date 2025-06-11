@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { getGifs, getGifsByTag } from '../services/gifService';
-import GifItem from './GifItem';
-import SpinnerLoading from './SpinnerLoading';
+import { GifItem } from './GifItem';
+import { SpinnerLoading } from './SpinnerLoading';
 
 interface Gif {
   _id: string;
@@ -22,7 +22,7 @@ interface GifGalleryProps {
   tag?: string;
 }
 
-const GifGallery = ({ gifs: initialGifs, tag }: GifGalleryProps) => {
+export const GifGallery = ({ gifs: initialGifs, tag }: GifGalleryProps) => {
   const [gifs, setGifs] = useState<Gif[]>(initialGifs ?? []);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -132,5 +132,3 @@ const GifGallery = ({ gifs: initialGifs, tag }: GifGalleryProps) => {
     </div>
   );
 };
-
-export default GifGallery;

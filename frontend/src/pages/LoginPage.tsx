@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { AxiosError } from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
-import Header from '../components/layout/Header';
+import { Header } from '../components/layout/Header';
 
-const Login = () => {
+export const LoginPage = () => {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -54,5 +54,3 @@ const Login = () => {
     </div>
   );
 };
-
-export default Login;

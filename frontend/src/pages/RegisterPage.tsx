@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { AxiosError } from 'axios';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import Header from '../components/layout/Header';
+import { Header } from '../components/layout/Header';
 
-const Register = () => {
+export const RegisterPage = () => {
   const [form, setForm] = useState({ username: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -80,5 +80,3 @@ const Register = () => {
     </div>
   );
 };
-
-export default Register;

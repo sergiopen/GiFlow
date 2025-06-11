@@ -1,4 +1,4 @@
-import LikeButton from './LikeButton';
+import { LikeButton } from './LikeButton';
 import { useAuth } from '../contexts/AuthContext';
 import { useEffect, useRef } from 'react';
 import { incrementView } from '../services/gifService';
@@ -18,7 +18,7 @@ interface GifItemProps {
   } | null;
 }
 
-const GifItem = ({ id, url, title, tags, likes, likedBy, uploadedBy }: GifItemProps) => {
+export const GifItem = ({ id, url, title, tags, likes, likedBy, uploadedBy }: GifItemProps) => {
   const { user, isAuthenticated } = useAuth();
   const userId = user?.userId?.trim().toLowerCase() ?? '';
   const likedByIds = (likedBy ?? []).map((id) => id.toString().trim().toLowerCase());
@@ -111,5 +111,3 @@ const GifItem = ({ id, url, title, tags, likes, likedBy, uploadedBy }: GifItemPr
     </div>
   );
 };
-
-export default GifItem;

@@ -9,7 +9,7 @@ interface LikeButtonProps {
   isAuthenticated: boolean;
 }
 
-export default function LikeButton({ gifId, initialLikes, initiallyLiked, userId, isAuthenticated }: LikeButtonProps) {
+export const LikeButton = ({ gifId, initialLikes, initiallyLiked, userId, isAuthenticated }: LikeButtonProps) => {
   const [likes, setLikes] = useState(initialLikes);
   const [liked, setLiked] = useState(initiallyLiked);
   const [loading, setLoading] = useState(false);
@@ -48,15 +48,15 @@ export default function LikeButton({ gifId, initialLikes, initiallyLiked, userId
       onClick={handleLike}
       disabled={loading}
       className={`
-        flex items-center p-2 gap-2
+        flex items-center gap-2
         cursor-pointer transition-transform duration-200 hover:scale-110
       `}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
-        width="30"
-        height="30"
+        width="32"
+        height="32"
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
@@ -69,4 +69,4 @@ export default function LikeButton({ gifId, initialLikes, initiallyLiked, userId
       <span className="font-bold text-base">{likes}</span>
     </button>
   );
-}
+};

@@ -1,12 +1,13 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import UploadGif from './components/UploadGif';
-import ProtectedRoute from './components/ProtectedRoute';
+import { UploadGif } from './components/UploadGif';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
-import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
+import { HomePage } from './pages/HomePage';
+import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
 import { TagPage } from './pages/TagPage';
 import { GifPage } from './pages/GifPage';
+import { EmbedGif } from './pages/EmbedGif';
 
 const App = () => {
   return (
@@ -16,6 +17,7 @@ const App = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/gif/:id" element={<GifPage />} />
           <Route path="/tag/:tag" element={<TagPage />} />
+          <Route path="/embed/gif/:id" element={<EmbedGif />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 

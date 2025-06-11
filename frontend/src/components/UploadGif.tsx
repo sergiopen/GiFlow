@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { uploadGif } from '../services/gifService';
 
-const UploadGif = () => {
+export const UploadGif = () => {
   const [title, setTitle] = useState('');
   const [tags, setTags] = useState('');
   const [file, setFile] = useState<File | null>(null);

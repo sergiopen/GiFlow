@@ -91,7 +91,7 @@ export const getGifs = async (req: Request, res: Response) => {
 
 export const getGifById: RequestHandler = async (req, res, next) => {
   try {
-    const gif = await Gif.findById(req.params.id).populate('uploadedBy', 'username avatar');
+    const gif = await Gif.findById(req.params.id).populate('uploadedBy', 'username avatar name bio');
 
     if (!gif) {
       res.status(404).json({ message: 'GIF not found' });
