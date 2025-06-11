@@ -15,7 +15,7 @@ export const createGif: RequestHandler = async (req, res, next) => {
     }
 
     const newGif = new Gif({
-      url: `${BACK_URL}/uploads/${file.filename}`,
+      url: `${BACK_URL}/uploads/gifs/${file.filename}`,
       title,
       tags: Array.isArray(tags) ? tags : [tags].filter(Boolean),
       uploadedBy: req.user?._id,

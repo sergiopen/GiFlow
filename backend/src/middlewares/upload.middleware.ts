@@ -1,19 +1,8 @@
-import { Request } from 'express';
 import multer, { FileFilterCallback } from 'multer';
 import path from 'path';
+import { Request } from 'express';
 
-const storage = multer.diskStorage({
-  destination: (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
-    const ext = path.extname(file.originalname);
-    const filename = `${Date.now()}${ext}`;
-    cb(null, filename);
-  },
-});
-
-const fileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
+const gifFileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
   if (file.mimetype === 'image/gif') {
     cb(null, true);
   } else {
@@ -21,6 +10,34 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallb
   }
 };
 
-const upload = multer({ storage, fileFilter });
+const avatarFileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
+  const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  if (allowed.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only JPEG, PNG, WEBP and GIF images are allowed for avatar'));
+  }
+};
 
-export default upload;
+const gifStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/gifs/');
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `${Date.now()}${ext}`);
+  },
+});
+
+const avatarStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/avatars/');
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `${Date.now()}${ext}`);
+  },
+});
+
+export const uploadGif = multer({ storage: gifStorage, fileFilter: gifFileFilter });
+export const uploadAvatar = multer({ storage: avatarStorage, fileFilter: avatarFileFilter });

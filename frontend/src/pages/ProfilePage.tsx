@@ -59,13 +59,13 @@ export const ProfilePage = () => {
         <>
             <Header />
 
-            <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+            <main className="max-w-[1200px] mx-auto px-4 sm:px-6 py-4">
                 <section className="flex flex-col sm:flex-row sm:items-start sm:gap-6 mb-8 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-lg p-6 text-white">
                     <div className="flex flex-col items-center sm:items-start text-center sm:text-left mb-6 sm:mb-0">
                         <img
                             src={profileUser.avatar || '/default-avatar.gif'}
                             alt={`Avatar de ${profileUser.username}`}
-                            className="w-24 h-24 rounded-full object-cover border border-gray-600 mb-3"
+                            className="w-32 h-32 m-auto rounded-full object-cover mb-3"
                         />
                         <div className="flex justify-center sm:justify-start gap-8 text-sm text-gray-300">
                             <div>

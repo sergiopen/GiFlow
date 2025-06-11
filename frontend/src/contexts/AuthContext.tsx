@@ -7,6 +7,8 @@ interface User {
   username: string;
   email: string;
   avatar: string;
+  name?: string;
+  bio?: string;
 }
 
 interface AuthContextType {
@@ -16,6 +18,7 @@ interface AuthContextType {
   login: (identifier: string, password: string) => Promise<void>;
   register: (formData: { username: string; email: string; password: string }) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,19 +34,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const verifyAuth = async () => {
+    try {
+      const data = await verifyUser();
+      setUser(data);
+      setIsAuthenticated(true);
+    } catch {
+      setUser(null);
+      setIsAuthenticated(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const verifyAuth = async () => {
-      try {
-        const data = await verifyUser();
-        setUser(data);
-        setIsAuthenticated(true);
-      } catch {
-        setUser(null);
-        setIsAuthenticated(false);
-      } finally {
-        setLoading(false);
-      }
-    };
     verifyAuth();
   }, []);
 
@@ -53,7 +57,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const data = await loginUser(identifier, password);
       setUser(data);
       setIsAuthenticated(true);
-      window.location.reload();
     } catch (err) {
       setIsAuthenticated(false);
       setUser(null);
@@ -84,5 +87,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   };
 
-  return <AuthContext.Provider value={{ isAuthenticated, user, loading, login, register, logout }}>{children}</AuthContext.Provider>;
+  const refreshUser = async () => {
+    try {
+      const data = await verifyUser();
+      setUser(data);
+    } catch (err) {
+      console.error('Error refreshing user:', err);
+    }
+  };
+
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, user, loading, login, register, logout, refreshUser }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };

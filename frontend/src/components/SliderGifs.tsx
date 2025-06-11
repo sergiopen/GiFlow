@@ -33,14 +33,13 @@ export const SliderGifs = ({
             <div className="relative">
                 <button
                     onClick={() => scroll('left')}
-                    aria-label="Scroll left"
-                    className="absolute left-0 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white rounded-full p-2 z-10"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white rounded-full p-4 z-100 cursor-pointer text-lg"
                 >
                     &#8249;
                 </button>
                 <div
                     ref={containerRef}
-                    className="flex overflow-x-auto no-scrollbar gap-4 scroll-smooth px-8"
+                    className="flex overflow-x-auto no-scrollbar gap-4 scroll-smooth px-8 items-center"
                 >
                     {gifs.map(gif => (
                         <div key={gif._id} className="flex-shrink-0 w-[300px]">
@@ -57,8 +56,7 @@ export const SliderGifs = ({
                 </div>
                 <button
                     onClick={() => scroll('right')}
-                    aria-label="Scroll right"
-                    className="absolute right-0 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white rounded-full p-2 z-10"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white rounded-full p-4 z-100 cursor-pointer text-lg"
                 >
                     &#8250;
                 </button>

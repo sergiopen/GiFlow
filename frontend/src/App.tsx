@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { UploadGif } from './components/UploadGif';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import { HomePage } from './pages/HomePage';
@@ -9,6 +8,8 @@ import { TagPage } from './pages/TagPage';
 import { GifPage } from './pages/GifPage';
 import { EmbedGif } from './pages/EmbedGif';
 import { ProfilePage } from './pages/ProfilePage';
+import { UploadPage } from './pages/UploadPage';
+import { EditProfilePage } from './pages/EditProfilePage';
 
 const App = () => {
   return (
@@ -27,7 +28,15 @@ const App = () => {
             path="/upload"
             element={
               <ProtectedRoute>
-                <UploadGif />
+                <UploadPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/edit"
+            element={
+              <ProtectedRoute>
+                <EditProfilePage />
               </ProtectedRoute>
             }
           />

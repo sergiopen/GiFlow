@@ -26,9 +26,17 @@ app.use('/api/users', userRoutes);
 app.use('/uploads', express.static(path.resolve('uploads')));
 
 const uploadsPath = path.resolve('uploads');
+const gifsPath = path.join(uploadsPath, 'gifs');
+const avatarsPath = path.join(uploadsPath, 'avatars');
 
 if (!fs.existsSync(uploadsPath)) {
   fs.mkdirSync(uploadsPath);
+}
+if (!fs.existsSync(gifsPath)) {
+  fs.mkdirSync(gifsPath);
+}
+if (!fs.existsSync(avatarsPath)) {
+  fs.mkdirSync(avatarsPath);
 }
 
 export default app;

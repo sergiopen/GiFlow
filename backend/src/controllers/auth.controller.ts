@@ -67,7 +67,7 @@ export const login: RequestHandler = async (req, res) => {
   }
 };
 
-export const verify: RequestHandler = (req, res) => {
+export const verify: RequestHandler = async (req, res) => {
   const token = req.cookies?.token;
   if (!token) {
     res.status(401).json({ message: 'Not authenticated' });
@@ -75,8 +75,18 @@ export const verify: RequestHandler = (req, res) => {
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; username: string };
-    res.json({ userId: decoded.userId, username: decoded.username });
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+    const user = await User.findById(decoded.userId).select('username avatar');
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    res.json({
+      userId: user._id,
+      username: user.username,
+      avatar: user.avatar,
+    });
   } catch {
     res.status(403).json({ message: 'Invalid token' });
   }
