@@ -2,20 +2,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { getGifs, getGifsByTag } from '../services/gifService';
 import { GifItem } from './GifItem';
 import { SpinnerLoading } from './SpinnerLoading';
-
-interface Gif {
-  _id: string;
-  url: string;
-  title: string;
-  likes: number;
-  tags: string[];
-  likedBy: string[];
-  uploadedBy: {
-    userId: string;
-    username: string;
-    avatar?: string;
-  } | null;
-}
+import type { Gif } from '../types/gif.types';
 
 interface GifGalleryProps {
   gifs?: Gif[];
@@ -121,7 +108,15 @@ export const GifGallery = ({ gifs: initialGifs, tag }: GifGalleryProps) => {
                 tags={gif.tags}
                 likes={gif.likes}
                 likedBy={gif.likedBy}
-                uploadedBy={gif.uploadedBy}
+                uploadedBy={
+                  gif.uploadedBy
+                    ? {
+                      userId: gif.uploadedBy._id,
+                      username: gif.uploadedBy.username,
+                      avatar: gif.uploadedBy.avatar,
+                    }
+                    : null
+                }
               />
             </div>
           );

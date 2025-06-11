@@ -8,6 +8,7 @@ import { RegisterPage } from './pages/RegisterPage';
 import { TagPage } from './pages/TagPage';
 import { GifPage } from './pages/GifPage';
 import { EmbedGif } from './pages/EmbedGif';
+import { ProfilePage } from './pages/ProfilePage';
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
           <Route path="/gif/:id" element={<GifPage />} />
           <Route path="/tag/:tag" element={<TagPage />} />
           <Route path="/embed/gif/:id" element={<EmbedGif />} />
+          <Route path='/profile/:username' element={<ProfilePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 

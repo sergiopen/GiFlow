@@ -7,25 +7,7 @@ import { Header } from '../components/layout/Header';
 import { ShareSection } from '../components/ShareSection';
 import { GifGallery } from '../components/GifGallery';
 import { GifPageSkeleton } from '../components/skeletons/GifPageSkeleton';
-
-type Gif = {
-  _id: string;
-  url: string;
-  title: string;
-  tags: string[];
-  likes: number;
-  views: number;
-  uploadedBy: {
-    _id: string;
-    username: string;
-    avatar: string;
-    bio: string;
-    name: string;
-  };
-  createdAt: string;
-  likedByUser: boolean;
-  uploadedAt?: string;
-};
+import type { Gif } from '../types/gif.types';
 
 export const GifPage = () => {
   const { id } = useParams();
@@ -91,7 +73,7 @@ export const GifPage = () => {
   if (!gif) return <div className="text-center mt-8 text-red-500">GIF no encontrado</div>;
 
   return (
-    <div>
+    <>
       <Header />
 
       <div className="max-w-[1200px] mx-auto mt-8 px-4">
@@ -204,6 +186,6 @@ export const GifPage = () => {
           <GifGallery tag={gif.tags[0]} />
         </div>
       </div>
-    </div>
+    </>
   );
 };
