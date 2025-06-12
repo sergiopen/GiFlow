@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
+const isProd = process.env.NODE_ENV === 'production';
 
 export const register: RequestHandler = async (req, res) => {
   const { username, email, password } = req.body;
@@ -16,9 +17,10 @@ export const register: RequestHandler = async (req, res) => {
 
     res.cookie('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
     });
 
     res.status(201).json({ message: 'User registered and logged in', username: user.username });
@@ -55,8 +57,8 @@ export const login: RequestHandler = async (req, res) => {
 
     res.cookie('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/',
     });
@@ -95,8 +97,9 @@ export const verify: RequestHandler = async (req, res) => {
 export const logout: RequestHandler = (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
+    path: '/',
   });
   res.json({ message: 'Logged out successfully' });
 };
