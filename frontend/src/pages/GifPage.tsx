@@ -18,7 +18,7 @@ export const GifPage = () => {
   const [sizeKB, setSizeKB] = useState<number | null>(null);
   const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null);
 
-  const embedCode = `<iframe src="http://localhost:5173/embed/gif/${id}" width="480" height="360" frameBorder="0" allowFullScreen title="GIF Embed"></iframe>`;
+  const embedCode = `<iframe src="${import.meta.env.VITE_API_URL}/embed/gif/${id}" width="480" height="360" frameBorder="0" allowFullScreen title="GIF Embed"></iframe>`;
 
   usePageMeta({
     title: gif?.title ? `${gif?.title}` : ''
