@@ -63,8 +63,7 @@ export const ProfilePage = () => {
     return (
         <>
             <Header />
-
-            <main className="max-w-[1200px] mx-auto px-4 sm:px-6 py-4">
+            <main className="max-w-[1280px] mx-auto px-4 sm:px-6 py-4">
                 <section className="flex flex-col sm:flex-row sm:items-start sm:gap-6 mb-8 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-lg p-6 text-white">
                     <div className="flex flex-col items-center sm:items-start text-center sm:text-left mb-6 sm:mb-0">
                         <img

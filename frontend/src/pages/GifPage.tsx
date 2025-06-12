@@ -67,13 +67,13 @@ export const GifPage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     incrementView(id as string);
-  }, [id])
+  }, [id]);
 
   const copyText = (text: string) => {
     navigator.clipboard.writeText(text);
   };
 
-  if (loading) return <GifPageSkeleton />
+  if (loading) return <GifPageSkeleton />;
 
   if (!gif) return <div className="text-center mt-8 text-red-500">GIF no encontrado</div>;
 
@@ -140,6 +140,15 @@ export const GifPage = () => {
               isAuthenticated={isAuthenticated}
             />
             <ShareSection />
+
+            {isAuthenticated && gif.uploadedBy?._id === user?.userId && (
+              <Link
+                to={`/edit/${gif._id}`}
+                className="inline-block bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm transition-colors"
+              >
+                Editar GIF
+              </Link>
+            )}
           </div>
         </div>
 

@@ -26,17 +26,24 @@ export const getUserByUsername: RequestHandler = async (req, res) => {
 
 export const updateUserProfile: RequestHandler = async (req, res) => {
   try {
-    const userId = req.params.id;
+    const loggedUserId = req.user?._id;
+    const userIdToUpdate = req.params.id;
+
+    if (loggedUserId !== userIdToUpdate) {
+      res.status(403).json({ message: 'No autorizado para editar este perfil' });
+      return;
+    }
+
     const updates: Partial<{ username: string; bio: string; avatar: string }> = {};
 
     if (req.body.username) updates.username = req.body.username;
-    if (req.body.bio) updates.bio = req.body.bio;
+    if ('bio' in req.body) updates.bio = req.body.bio;
 
     if (req.file) {
       updates.avatar = `${BACK_URL}/uploads/avatars/${req.file.filename}`;
     }
 
-    const updatedUser = await User.findByIdAndUpdate(userId, updates, {
+    const updatedUser = await User.findByIdAndUpdate(userIdToUpdate, updates, {
       new: true,
       runValidators: true,
     }).select('-password');

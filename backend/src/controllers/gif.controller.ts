@@ -184,6 +184,76 @@ export const getGifById: RequestHandler = async (req, res, next) => {
   }
 };
 
+export const updateGif: RequestHandler = async (req, res) => {
+  try {
+    const loggedUserId = req.user?._id;
+    const gifId = req.params.id;
+
+    const gif = await Gif.findById(gifId);
+    if (!gif) {
+      res.status(404).json({ message: 'GIF no encontrado' });
+      return;
+    }
+
+    if (gif.uploadedBy.toString() !== loggedUserId) {
+      res.status(403).json({ message: 'No autorizado para editar este GIF' });
+      return;
+    }
+
+    const updates: Partial<{ title: string; tags: string[] }> = {};
+
+    if (req.body.title) updates.title = req.body.title;
+    if (req.body.tags) {
+      if (Array.isArray(req.body.tags)) {
+        updates.tags = req.body.tags;
+      } else if (typeof req.body.tags === 'string') {
+        updates.tags = req.body.tags
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean);
+      }
+    }
+
+    const updatedGif = await Gif.findByIdAndUpdate(gifId, updates, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedGif) {
+      res.status(404).json({ message: 'GIF no encontrado tras intentar actualizar' });
+      return;
+    }
+
+    res.json({ message: 'GIF actualizado correctamente', gif: updatedGif });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error al actualizar el GIF', error: error.message });
+  }
+};
+
+export const deleteGif: RequestHandler = async (req, res) => {
+  try {
+    const loggedUserId = req.user?._id;
+    const gifId = req.params.id;
+
+    const gif = await Gif.findById(gifId);
+    if (!gif) {
+      res.status(404).json({ message: 'GIF no encontrado' });
+      return;
+    }
+
+    if (gif.uploadedBy.toString() !== loggedUserId) {
+      res.status(403).json({ message: 'No autorizado para eliminar este GIF' });
+      return;
+    }
+
+    await gif.deleteOne();
+
+    res.json({ message: 'GIF eliminado correctamente' });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error al eliminar el GIF', error: error.message });
+  }
+};
+
 export const likeGif: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;

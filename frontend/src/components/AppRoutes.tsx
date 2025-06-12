@@ -10,6 +10,7 @@ import { ProfilePage } from "../pages/ProfilePage";
 import { EmbedGif } from "../pages/EmbedGif";
 import { GifPage } from "../pages/GifPage";
 import { TagPage } from "../pages/TagPage";
+import { EditGifPage } from "../pages/EditGifPage";
 
 export const AppRoutes = () => {
     return (
@@ -39,6 +40,13 @@ export const AppRoutes = () => {
                     </ProtectedRoute>
                 }
             />
+
+            <Route path="/edit/:id" element={
+                <ProtectedRoute>
+                    <EditGifPage />
+                </ProtectedRoute>
+            } />
+
 
             <Route path="*" element={<h1>Página no encontrada</h1>} />
         </Routes>

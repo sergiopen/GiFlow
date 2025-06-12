@@ -6,6 +6,7 @@ import { uploadAvatar } from '../middlewares/upload.middleware';
 const router = Router();
 
 router.get('/:username', getUserByUsername);
+
 router.patch('/:id', authenticateToken, uploadAvatar.single('avatar'), updateUserProfile);
 
 export default router;

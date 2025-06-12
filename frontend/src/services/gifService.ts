@@ -8,6 +8,11 @@ interface GetGifsParams {
   sort?: string;
 }
 
+export interface GifUpdateData {
+  title?: string;
+  tags?: string[];
+}
+
 export const getGifs = async ({ page, limit, sort }: GetGifsParams = {}) => {
   const params = new URLSearchParams();
   if (page !== undefined) params.append('page', page.toString());
@@ -62,5 +67,15 @@ export const getGifsByName = async (query: string, page = 1, limit = 10) => {
 
 export const getGifsSuggestions = async (query: string) => {
   const res = await axios.get(`${API_URL}/api/gifs/suggestions?q=${query}`);
+  return res.data;
+};
+
+export const updateGif = async (id: string, data: GifUpdateData) => {
+  const res = await axios.patch(`${API_URL}/api/gifs/${id}`, data, { withCredentials: true });
+  return res.data;
+};
+
+export const deleteGif = async (id: string) => {
+  const res = await axios.delete(`${API_URL}/api/gifs/${id}`, { withCredentials: true });
   return res.data;
 };

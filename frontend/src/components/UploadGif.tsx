@@ -1,7 +1,10 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { uploadGif } from '../services/gifService';
 
 export const UploadGif = () => {
+  const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [tags, setTags] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -36,11 +39,12 @@ export const UploadGif = () => {
 
     try {
       const data = await uploadGif(formData);
-      setMessage(`GIF subido: ${data.title}`);
+      toast.success('GIF publicado correctamente');
       setTitle('');
       setTags('');
       setFile(null);
       setPreviewUrl(null);
+      navigate(`/gif/${data._id}`);
     } catch {
       setMessage('Error al subir el GIF');
     }
@@ -53,38 +57,75 @@ export const UploadGif = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md space-y-5">
-      <input
-        type="text"
-        placeholder="Título"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        id="form-input1"
-      />
-      <input
-        type="text"
-        placeholder="Tags separados por comas"
-        value={tags}
-        onChange={(e) => setTags(e.target.value)}
-        className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        id="form-input2"
-      />
-      <input type="file" accept="image/gif" onChange={handleFileChange} className="w-full text-gray-700" />
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-lg mx-auto p-8 bg-gray-800 rounded-lg shadow-lg space-y-6 text-white"
+      aria-label="Formulario para subir un GIF"
+    >
+      <div>
+        <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-1">
+          Título
+        </label>
+        <input
+          id="title"
+          type="text"
+          placeholder="Introduce el título"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          autoComplete="off"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="tags" className="block text-sm font-medium text-gray-300 mb-1 ">
+          Tags (separados por comas)
+        </label>
+        <input
+          id="tags"
+          type="text"
+          placeholder="Ejemplo: meme, funny, gato"
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          className="w-full px-4 py-3 border border-gray-300 rounded-md bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          autoComplete="off"
+        />
+      </div>
+
+      <div>
+        <label
+          htmlFor="gif"
+          className="block mb-2 text-sm font-semibold cursor-pointer"
+        >
+          Selecciona archivo GIF
+        </label>
+        <input
+          id="gif"
+          type="file"
+          accept="image/gif"
+          onChange={handleFileChange}
+          className="block w-full file:mr-4 file:py-2 file:px-4 file:rounded file:border-0
+            file:text-sm file:font-semibold
+            file:bg-indigo-600 file:text-white
+            hover:file:bg-indigo-700
+            focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
 
       {previewUrl && (
-        <div className="w-full border rounded overflow-hidden">
-          <img src={previewUrl} alt="Vista previa" className="w-full h-auto" />
+        <div className="w-full border rounded-md overflow-hidden">
+          <img src={previewUrl} alt="Vista previa del GIF seleccionado" className="w-full h-auto" />
         </div>
       )}
 
+      {message && <p className="text-center text-red-600 font-medium">{message}</p>}
+
       <button
         type="submit"
-        className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
+        className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 transition rounded-md text-white font-semibold text-lg cursor-pointer"
       >
         Subir GIF
       </button>
-      {message && <p className="text-center text-red-500">{message}</p>}
     </form>
   );
 };
