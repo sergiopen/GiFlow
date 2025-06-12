@@ -3,6 +3,7 @@ import { AxiosError } from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { Header } from '../components/layout/Header';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export const LoginPage = () => {
   const [identifier, setIdentifier] = useState('');
@@ -10,6 +11,8 @@ export const LoginPage = () => {
   const [error, setError] = useState('');
 
   const { isAuthenticated, login } = useAuth();
+
+  usePageMeta({ title: "Iniciar sesión" });
 
   if (isAuthenticated) return <Navigate to="/" />;
 

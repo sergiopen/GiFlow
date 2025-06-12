@@ -6,6 +6,7 @@ import { Header } from '../components/layout/Header';
 import { SliderGifs } from '../components/SliderGifs';
 import type { Gif } from '../types/gif.types';
 import { ProfilePageSkeleton } from '../components/skeletons/ProfilePageSkeleton';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 type User = {
     username: string;
@@ -23,6 +24,10 @@ export const ProfilePage = () => {
     const [likedGifs, setLikedGifs] = useState<Gif[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    usePageMeta({
+        title: profileUser?.username ? `Perfil de ${profileUser.username}` : ''
+    });
 
     useEffect(() => {
         if (!username) return;

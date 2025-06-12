@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getUserByUsername, updateUserProfile } from '../services/userService';
 import { useAuth } from '../contexts/AuthContext';
 import { Header } from '../components/layout/Header';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export const EditProfilePage = () => {
     const [username, setUsername] = useState('');
@@ -12,6 +13,8 @@ export const EditProfilePage = () => {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
     const { user, refreshUser } = useAuth();
+
+    usePageMeta({ title: "Editar Perfil" });
 
     useEffect(() => {
         const fetchProfile = async () => {

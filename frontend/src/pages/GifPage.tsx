@@ -8,6 +8,7 @@ import { ShareSection } from '../components/ShareSection';
 import { GifGallery } from '../components/GifGallery';
 import { GifPageSkeleton } from '../components/skeletons/GifPageSkeleton';
 import type { Gif } from '../types/gif.types';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export const GifPage = () => {
   const { id } = useParams();
@@ -18,6 +19,10 @@ export const GifPage = () => {
   const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null);
 
   const embedCode = `<iframe src="http://localhost:5173/embed/gif/${id}" width="480" height="360" frameBorder="0" allowFullScreen title="GIF Embed"></iframe>`;
+
+  usePageMeta({
+    title: gif?.title ? `${gif?.title}` : ''
+  });
 
   useEffect(() => {
     const fetchGif = async () => {
@@ -75,7 +80,6 @@ export const GifPage = () => {
   return (
     <>
       <Header />
-
       <div className="max-w-[1200px] mx-auto mt-8 px-4">
         <h1 className="text-2xl font-semibold mb-4 text-center">{gif.title}</h1>
 

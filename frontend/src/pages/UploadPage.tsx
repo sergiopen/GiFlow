@@ -1,7 +1,10 @@
 import { Header } from "../components/layout/Header";
 import UploadGif from "../components/UploadGif";
+import { usePageMeta } from "../hooks/usePageMeta";
 
 export const UploadPage = () => {
+    usePageMeta({ title: "Subir un GIF" });
+
     return (
         <>
             <Header />

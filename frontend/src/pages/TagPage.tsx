@@ -3,9 +3,14 @@ import { GifGallery } from '../components/GifGallery';
 import { Link } from 'react-router-dom';
 import { Header } from '../components/layout/Header';
 import { SearchBar } from '../components/SearchBar';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export const TagPage = () => {
   const { tag } = useParams();
+
+  usePageMeta({
+    title: tag ? `GIFs de ${tag}` : ''
+  });
 
   return (
     <div>

@@ -3,9 +3,14 @@ import { GifGallery } from '../components/GifGallery';
 import { Header } from '../components/layout/Header';
 import { SearchBar } from '../components/SearchBar';
 import { Link } from 'react-router-dom';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export const SearchResultsPage = () => {
     const { term } = useParams();
+
+    usePageMeta({
+        title: term ? `GIFs de ${term}` : ''
+    });
 
     return (
         <>

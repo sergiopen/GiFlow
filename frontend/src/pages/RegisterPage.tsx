@@ -3,6 +3,7 @@ import { AxiosError } from 'axios';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Header } from '../components/layout/Header';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export const RegisterPage = () => {
   const [form, setForm] = useState({ username: '', email: '', password: '' });
@@ -10,6 +11,8 @@ export const RegisterPage = () => {
   const [success, setSuccess] = useState('');
 
   const { isAuthenticated, register } = useAuth();
+
+  usePageMeta({ title: "Registro" });
 
   if (isAuthenticated) return <Navigate to="/" />;
 

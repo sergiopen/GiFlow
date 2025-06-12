@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { getGifsSuggestions } from '../services/gifService'
 
 type Suggestion =
@@ -45,6 +45,7 @@ export const SearchBar = () => {
         if (!trimmed) return
 
         setSuggestions([])
+        setQuery('')
 
         if (trimmed.startsWith('@')) {
             const username = trimmed.slice(1)
@@ -56,12 +57,12 @@ export const SearchBar = () => {
 
     const handleSuggestionClick = (suggestion: Suggestion) => {
         setSuggestions([])
+        setQuery('')
+
         if (suggestion.type === 'user') {
             navigate(`/profile/${encodeURIComponent(suggestion.username)}`)
-            setQuery(`@${suggestion.username}`)
         } else {
             navigate(`/search/${encodeURIComponent(suggestion.title)}`)
-            setQuery(suggestion.title)
         }
     }
 
@@ -78,10 +79,11 @@ export const SearchBar = () => {
                     onChange={e => setQuery(e.target.value)}
                     placeholder="Buscar por título o @usuario"
                     className="flex-grow bg-transparent outline-none placeholder-gray-400 text-xl"
+                    id="input-text"
+                    aria-expanded={suggestions.length > 0}
                     aria-autocomplete="list"
                     aria-controls="suggestions-list"
                     aria-haspopup="listbox"
-                    aria-expanded={suggestions.length > 0}
                 />
                 <button
                     type="submit"
@@ -100,7 +102,10 @@ export const SearchBar = () => {
                     {suggestions.map((s, i) => (
                         <li
                             key={i}
+                            role="option"
+                            tabIndex={0}
                             className="cursor-pointer px-4 py-2 hover:bg-blue-100"
+                            onClick={() => handleSuggestionClick(s)}
                             onKeyDown={e => {
                                 if (e.key === 'Enter' || e.key === ' ') {
                                     e.preventDefault()
@@ -109,11 +114,7 @@ export const SearchBar = () => {
                             }}
                         >
                             {s.type === 'user' ? (
-                                <Link
-                                    to={`/profile/${encodeURIComponent(s.username)}`}
-                                    className="flex items-center gap-2 w-full"
-                                    onClick={() => setSuggestions([])}
-                                >
+                                <div className="flex items-center gap-2">
                                     <img
                                         src={s.avatar || '/default-avatar.gif'}
                                         alt={s.username}
@@ -123,15 +124,9 @@ export const SearchBar = () => {
                                         <span className="font-bold text-lg">{s.name}</span>
                                         <span>@{s.username}</span>
                                     </div>
-                                </Link>
+                                </div>
                             ) : (
-                                <Link
-                                    to={`/search/${encodeURIComponent(s.title)}`}
-                                    onClick={() => handleSuggestionClick(s)}
-                                    className="block px-2 py-1"
-                                >
-                                    {s.title}
-                                </Link>
+                                <div className="block px-2 py-1">{s.title}</div>
                             )}
                         </li>
                     ))}
