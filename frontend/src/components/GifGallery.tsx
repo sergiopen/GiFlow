@@ -85,7 +85,7 @@ export const GifGallery = ({ tag, searchQuery }: GifGalleryProps) => {
     };
   }, [hasMore, loading]);
 
-  if (gifs.length < 1) return (<h1 className='text-center'>No se han encontrado gifs</h1>)
+  if (gifs.length < 1 && !loading) return (<h1 className='text-center'>No se han encontrado gifs</h1>)
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 md:px-0">
