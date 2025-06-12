@@ -1,5 +1,6 @@
 import { RequestHandler } from 'express';
 import Gif from '../models/Gif';
+import User from '../models/User';
 import mongoose from 'mongoose';
 import type { Request, Response } from 'express';
 
@@ -86,6 +87,86 @@ export const getGifs = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error fetching gifs:', error);
     res.status(500).json({ message: 'Error fetching gifs' });
+  }
+};
+
+export const searchGifs: RequestHandler = async (req: Request, res: Response) => {
+  try {
+    const q = (req.query.q as string)?.trim();
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit as string) || 10, 1);
+
+    if (!q) {
+      res.status(400).json({ message: 'Missing search query' });
+      return;
+    }
+
+    const regex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+
+    const filter = { title: { $regex: regex } };
+    const total = await Gif.countDocuments(filter);
+
+    const gifs = await Gif.find(filter)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .populate('uploadedBy', 'username avatar');
+
+    res.json({ gifs, total, limit });
+  } catch (error) {
+    console.error('Error in searchGifs:', error);
+    res.status(500).json({ message: 'Server error while searching GIFs' });
+  }
+};
+
+export const getGifsSuggestions: RequestHandler = async (req, res) => {
+  try {
+    const q = (req.query.q as string)?.trim();
+    if (!q || q.length < 2) {
+      res.json({ suggestions: [] });
+      return;
+    }
+
+    if (q.startsWith('@')) {
+      const usernameQuery = q.slice(1);
+      if (usernameQuery.length < 2) {
+        res.json({ suggestions: [] });
+        return;
+      }
+
+      const regex = new RegExp('^' + usernameQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      const users = await User.find({ username: { $regex: regex } })
+        .limit(5)
+        .select('username name avatar -_id')
+        .lean();
+
+      res.json({
+        suggestions: users.map((u) => ({
+          type: 'user',
+          username: u.username,
+          avatar: u.avatar,
+          name: u.name,
+        })),
+      });
+      return;
+    }
+
+    const regex = new RegExp('^' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    const gifs = await Gif.find({ title: { $regex: regex } })
+      .select('title -_id')
+      .lean();
+
+    const uniqueTitles = Array.from(new Set(gifs.map((g) => g.title))).slice(0, 5);
+
+    res.json({
+      suggestions: uniqueTitles.map((title) => ({
+        type: 'gif',
+        title,
+      })),
+    });
+  } catch (error) {
+    console.error('Error fetching suggestions:', error);
+    res.status(500).json({ message: 'Error fetching suggestions' });
   }
 };
 

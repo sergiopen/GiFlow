@@ -1,16 +1,16 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { getGifs, getGifsByTag } from '../services/gifService';
+import { getGifs, getGifsByTag, getGifsByName } from '../services/gifService';
 import { GifItem } from './GifItem';
 import { SpinnerLoading } from './SpinnerLoading';
 import type { Gif } from '../types/gif.types';
 
 interface GifGalleryProps {
-  gifs?: Gif[];
   tag?: string;
+  searchQuery?: string;
 }
 
-export const GifGallery = ({ gifs: initialGifs, tag }: GifGalleryProps) => {
-  const [gifs, setGifs] = useState<Gif[]>(initialGifs ?? []);
+export const GifGallery = ({ tag, searchQuery }: GifGalleryProps) => {
+  const [gifs, setGifs] = useState<Gif[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -23,7 +23,9 @@ export const GifGallery = ({ gifs: initialGifs, tag }: GifGalleryProps) => {
       setLoading(true);
       try {
         let data;
-        if (tag) {
+        if (searchQuery) {
+          data = await getGifsByName(searchQuery, pageToLoad, 10);
+        } else if (tag) {
           data = await getGifsByTag(tag, pageToLoad, 10);
         } else {
           data = await getGifs({ page: pageToLoad, limit: 10, sort: 'popular' });
@@ -47,33 +49,22 @@ export const GifGallery = ({ gifs: initialGifs, tag }: GifGalleryProps) => {
         setLoading(false);
       }
     },
-    [tag]
+    [tag, searchQuery]
   );
 
   useEffect(() => {
-    if (initialGifs) {
-      setGifs(initialGifs);
-      setPage(1);
-      setHasMore(false);
-      setLoading(false);
-      return;
-    }
-
     setGifs([]);
     setPage(1);
     setHasMore(true);
     setLoading(false);
-  }, [initialGifs, tag]);
+  }, [tag, searchQuery]);
 
   useEffect(() => {
-    if (initialGifs) return;
     if (!hasMore) return;
-
     loadGifs(page);
-  }, [page, loadGifs, hasMore, initialGifs]);
+  }, [page, loadGifs, hasMore]);
 
   useEffect(() => {
-    if (initialGifs) return;
     if (loading) return;
 
     if (observer.current) observer.current.disconnect();
@@ -92,15 +83,17 @@ export const GifGallery = ({ gifs: initialGifs, tag }: GifGalleryProps) => {
     return () => {
       if (observer.current) observer.current.disconnect();
     };
-  }, [hasMore, loading, initialGifs]);
+  }, [hasMore, loading]);
+
+  if (gifs.length < 1) return (<h1 className='text-center'>No se han encontrado gifs</h1>)
 
   return (
-    <div className="mx-auto max-w-[1280px] p-6">
+    <div className="mx-auto max-w-[1280px] px-4 md:px-0">
       <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-6">
         {gifs.map((gif, i) => {
           const isLast = i === gifs.length - 1;
           return (
-            <div key={gif._id} ref={!initialGifs && isLast ? lastGifRef : null} className="break-inside-avoid mb-6">
+            <div key={gif._id} ref={isLast ? lastGifRef : null} className="break-inside-avoid mb-6">
               <GifItem
                 id={gif._id}
                 url={gif.url}
@@ -123,7 +116,7 @@ export const GifGallery = ({ gifs: initialGifs, tag }: GifGalleryProps) => {
         })}
       </div>
 
-      {!initialGifs && loading && <SpinnerLoading />}
+      {loading && <SpinnerLoading />}
     </div>
   );
 };

@@ -10,6 +10,7 @@ import { EmbedGif } from './pages/EmbedGif';
 import { ProfilePage } from './pages/ProfilePage';
 import { UploadPage } from './pages/UploadPage';
 import { EditProfilePage } from './pages/EditProfilePage';
+import { SearchResultsPage } from './pages/SearchResultsPage';
 
 const App = () => {
   return (
@@ -21,8 +22,10 @@ const App = () => {
           <Route path="/tag/:tag" element={<TagPage />} />
           <Route path="/embed/gif/:id" element={<EmbedGif />} />
           <Route path='/profile/:username' element={<ProfilePage />} />
+          <Route path="/search/:term" element={<SearchResultsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+
 
           <Route
             path="/upload"
