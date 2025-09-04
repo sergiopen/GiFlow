@@ -1,4 +1,11 @@
 {
+  "name": "giflow",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
   "scripts": {
     "start:backend": "cd backend && npm run dev",
     "start:frontend": "cd frontend && npm run dev",
